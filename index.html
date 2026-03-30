@@ -2,159 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ransom Notes</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ransom Notes">
+
     <style>
-        body { 
-            background-color: #e8e8e8; 
-            padding: 20px; 
-            font-family: sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            height: 100vh;
+        body {
             margin: 0;
-        }
-
-        #workspace {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 30px;
-            background-color: #d8d8d8;
-            border: 2px solid #aaa;
-            border-radius: 6px;
-            min-height: 180px;
-            width: 90%;
-            max-width: 1100px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
-            align-content: flex-start;
-        }
-
-        #word-pile {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 20px;
-            background-color: #bbbbbb;
-            border-radius: 6px;
-            min-height: 300px;
-            width: 90%;
-            max-width: 1100px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-            overflow-y: auto;
-        }
-
-        .tile {
-            padding: 4px 10px;
-            background-color: white;
-            border: 2px solid black; 
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            cursor: grab;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            font-size: 1.1em;
-            user-select: none;
-            border-radius: 1px;
-            touchaction: none
-            white-space: nowrap;
-        }
-
-        .tile:active { cursor: grabbing; border-color: #555; }
-        .sortable-ghost { opacity: 0.2; }
-
-        .controls { margin-bottom: 15px; display: flex; gap: 15px; align-items: center; }
-
-        button {
-            padding: 12px 24px;
-            font-weight: bold;
-            cursor: pointer;
+            padding: 0;
             background-color: #000;
             color: #fff;
-            border: 2px solid #000;
             font-family: 'Courier New', Courier, monospace;
-            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
         }
-        
-        button:hover { background-color: #333; }
-        button:active { background-color: #666; }
-        button:focus { background-color: #000; }
-        
-        .label { align-self: flex-start; margin-left: 5%; font-weight: bold; margin-bottom: 5px; color: #555; font-size: 0.8em; letter-spacing: 1px; }
-        .counter { font-family: 'Courier New', Courier, monospace; font-weight: bold; color: #000; }
+
+        #start-screen {
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            letter-spacing: 5px;
+        }
+
+        #entry-button {
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            padding: 25px 50px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 50px;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
+            transition: transform 0.2s ease;
+        }
+
+        #entry-button:active {
+            transform: scale(0.95);
+        }
+
+        #app-content {
+            display: none;
+        }
+
+        .ransom-label {
+            background: white;
+            color: black;
+            padding: 15px 30px;
+            font-size: 3rem;
+            font-weight: 900;
+            display: inline-block;
+            transform: rotate(-3deg);
+            box-shadow: 5px 5px 0px #ff4500;
+        }
+
+        /* Hides the YouTube video so only audio plays */
+        #youtube-player-container {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            visibility: hidden;
+        }
     </style>
 </head>
 <body>
 
-    <div class="label">PHRASE BUILDER</div>
-    <div id="workspace"></div>
-
-    <div class="controls">
-        <button onclick="discardAndRefill()">Discard Phrase & Refill Tray</button>
-        <button onclick="resetEverything()">Full Reset (Replenish Bank)</button>
-        <div class="counter">REMAINING IN BANK: <span id="count-val">0</span></div>
+    <div id="start-screen">
+        <h1>RANSOM NOTES</h1>
+        <button id="entry-button">Start the Party</button>
     </div>
 
-    <div class="label">WORD TRAY (UP TO 75 TILES)</div>
-    <div id="word-pile"></div>
+    <div id="app-content">
+        <div class="ransom-label">FIREBALL ACTIVE</div>
+        <p style="margin-top: 20px; opacity: 0.7;">Pitbull is looping in the background...</p>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <div id="youtube-player-container">
+        <div id="player"></div>
+    </div>
 
     <script>
-        const originalList = ["to", "is", "deluxe", "by", "burn", "swell", "insist", "until", "learning", "how", "cake", "pe", "sad", "always", "money", "taste", "in", "and", "now", "pressure", "sauce", "thirst", "hostility", "man", "dogs", "also", "hunt", "seem", "fall", "jerk", "ly", "we", "up", "finger", "less", "distress", "hazard", "above", "last", "amount", "question", "figure", "pause", "so", "this", "challenge", "trade", "harm", "then", "so", "got", "jo", "all", "this", "hi", "grip", "bury", "end", "wreck", "mammoth", "ask", "vital", "we", "shift", "me", "do", "noodle", "cuisine", "him", "high", "box", "cool", "ass", "chunky", "dangerous", "what", "million", "anything", "play", "could", "took", "one", "back", "plop", "by", "rumble", "specialty", "because", "query", "way", "supreme", "flesh", "under", "budget", "about", "insane", "wag", "dump", "of", "seduce", "you", "two", "his", "video", "mean", "classic", "flesh", "like", "beat", "about", "load", "pump", "baby", "non", "paper", "clear", "them", "like", "bear", "about", "through", "work", "I", "pay", "for", "her", "cut", "up", "droop", "rough", "beat", "struggle", "nose", "critical", "elderly", "snake", "should", "brawl", "need", "share", "nifty", "actually", "adjust", "ahead", "all", "as", "across", "act", "avoid", "ball", "bang", "ban", "because", "behind", "below", "beneath", "blast", "book", "broad", "bumpy", "burden", "call", "can", "child", "cloth", "creep", "cute", "cry", "decay", "decent", "delight", "dip", "drink", "earn", "embrace", "enter", "feel", "filth", "finally", "flap", "fluff", "for", "forbidden", "fun", "go", "go", "groan", "grow", "has", "hefty", "help", "hole", "hope", "hundred", "light", "long", "love", "lunch", "mammal", "me", "misery", "mister", "model", "monster", "neat", "network", "no", "now", "obstacle", "peel", "pester", "place", "pleasure", "pledge", "poke", "prick", "quiver", "rash", "replace", "rub", "rump", "save", "seem", "setback", "sex", "shaft", "shape", "she", "shrink", "sickly", "slay", "snatch", "so", "some", "spread", "stab", "storm", "strange", "style", "summon", "swallow", "to", "too", "utensil", "want", "wave", "what", "where", "why", "y", "y’all", "your"];
+        var player;
+        var videoId = 'hHUbLv4ThOo'; // YouTube ID for Fireball
 
-        let currentBank = [];
-        const workspace = document.getElementById('workspace');
-        const pile = document.getElementById('word-pile');
-        const countDisplay = document.getElementById('count-val');
+        // Load YouTube API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        new Sortable(workspace, { group: 'shared', animation: 150, ghostClass: 'sortable-ghost' });
-        new Sortable(pile, { group: 'shared', animation: 150, ghostClass: 'sortable-ghost' });
-
-        function updateCounter() {
-            countDisplay.innerText = currentBank.length;
-        }
-
-        function createTile(word) {
-            const newTile = document.createElement('div');
-            newTile.className = 'tile';
-            newTile.innerText = word;
-            return newTile;
-        }
-
-        function refillTray() {
-            const currentCount = pile.children.length;
-            const needed = 75 - currentCount;
-            
-            if (needed <= 0 || currentBank.length === 0) return;
-
-            // Pull words from the bank and remove them from the bank
-            const newWords = currentBank.splice(0, Math.min(needed, currentBank.length));
-
-            newWords.forEach(word => {
-                pile.appendChild(createTile(word));
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0',
+                width: '0',
+                videoId: videoId,
+                playerVars: {
+                    'autoplay': 1,
+                    'loop': 1,
+                    'playlist': videoId, // Required for the loop to work
+                    'controls': 0,
+                    'playsinline': 1,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
             });
-            updateCounter();
         }
 
-        function discardAndRefill() {
-            // Discarding removes words from the board forever
-            workspace.innerHTML = "";
-            refillTray();
+        function onPlayerReady(event) {
+            // Must start muted for mobile autoplay
+            event.target.mute();
+            event.target.playVideo();
         }
 
-        function resetEverything() {
-            workspace.innerHTML = "";
-            pile.innerHTML = "";
-            // Replenish the bank from the original full list
-            currentBank = [...originalList].sort(() => Math.random() - 0.5);
-            refillTray();
-            updateCounter();
+        function onPlayerStateChange(event) {
+            // Manual loop fallback
+            if (event.data === YT.PlayerState.ENDED) {
+                player.playVideo();
+            }
         }
 
-        // Start the first session
-        resetEverything();
+        // Handle Button Click
+        document.getElementById('entry-button').addEventListener('click', function() {
+            if (player) {
+                player.unMute();
+                player.seekTo(0);
+                player.playVideo();
+            }
+            
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+        });
     </script>
 </body>
 </html>
