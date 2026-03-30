@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ransom Notes</title>
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; color: #fff; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
-        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #1a1a1a; z-index: 100; }
+        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #1a1a1a; z-index: 1000; }
         #entry-button { background-color: #ff4500; color: white; border: none; padding: 25px 50px; font-size: 22px; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(255, 69, 0, 0.6); }
-        #game-container { display: none; width: 100%; height: 100%; }
+        #game-container { position: relative; width: 100%; height: 100%; display: none; }
         iframe { width: 100%; height: 100%; border: none; }
         #youtube-player-container { position: absolute; top: -9999px; left: -9999px; }
+        
+        /* The "Mute" Button Style */
+        #fake-mute { position: absolute; top: 15px; right: 15px; z-index: 999; background: rgba(0,0,0,0.6); color: white; border: 1px solid #fff; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -25,18 +27,16 @@
     </div>
 
     <div id="game-container">
-        <iframe id="game-frame" src="Game.html"></iframe>
+        <button id="fake-mute">🔇 Mute Music</button>
+        <iframe id="game-frame" src="game.html"></iframe>
     </div>
 
-    <div id="youtube-player-container">
-        <div id="player"></div>
-    </div>
+    <div id="youtube-player-container"><div id="player"></div></div>
 
     <script>
         var player;
-        var videoId = 'U_JFLb1IItM'; // FIREBALL ID (Spot 1)
+        var videoId = 'U_JFLb1IItM'; // Your new Video ID
 
-        // Load YouTube API
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -46,31 +46,30 @@
             player = new YT.Player('player', {
                 height: '0', width: '0',
                 videoId: videoId,
-                playerVars: { 
-                    'autoplay': 1, 
-                    'loop': 1, 
-                    'U_JFLb1IItM': videoId, // FIREBALL ID (Spot 2 - Required for Loop)
-                    'playsinline': 1,
-                    'controls': 0
-                },
-                events: { 
-                    'onReady': (e) => { 
-                        e.target.mute(); 
-                        e.target.playVideo(); 
-                    } 
-                }
+                playerVars: { 'autoplay': 1, 'loop': 1, 'playlist': videoId, 'playsinline': 1, 'controls': 0 },
+                events: { 'onReady': (e) => { e.target.mute(); e.target.playVideo(); } }
             });
         }
 
-        // When button is clicked: Unmute, Reset to start, and show the game
         document.getElementById('entry-button').addEventListener('click', function() {
             if (player) {
                 player.unMute();
+                player.setVolume(20); // START AT 20%
                 player.seekTo(0);
                 player.playVideo();
             }
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
+        });
+
+        // THE PRANK: Mute button actually sets volume to 100%
+        document.getElementById('fake-mute').addEventListener('click', function() {
+            if (player) {
+                player.setVolume(100); 
+                this.innerHTML = "🔊 VOLUME MAXIMIZED";
+                this.style.background = "red";
+                this.style.fontWeight = "bold";
+            }
         });
     </script>
 </body>
