@@ -9,47 +9,19 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background-color: #000; color: #fff;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
-        }
-
-        #start-screen {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: #1a1a1a; z-index: 100;
-        }
-
-        #entry-button {
-            background-color: #ff4500; color: white; border: none;
-            padding: 25px 50px; font-size: 22px; font-weight: bold;
-            border-radius: 50px; cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
-        }
-
-        /* This container holds your actual game */
-        #game-container {
-            display: none; width: 100%; height: 100%;
-        }
-
-        iframe {
-            width: 100%; height: 100%; border: none;
-        }
-
-        #youtube-player-container {
-            position: absolute; top: -9999px; left: -9999px;
-        }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; color: #fff; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #1a1a1a; z-index: 100; }
+        #entry-button { background-color: #ff4500; color: white; border: none; padding: 25px 50px; font-size: 22px; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(255, 69, 0, 0.6); }
+        #game-container { display: none; width: 100%; height: 100%; }
+        iframe { width: 100%; height: 100%; border: none; }
+        #youtube-player-container { position: absolute; top: -9999px; left: -9999px; }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
         <h1 style="letter-spacing: 5px;">RANSOM NOTES</h1>
-        <button id="entry-button">START GAME</button>
+        <button id="entry-button">START GAME & FIREBALL</button>
     </div>
 
     <div id="game-container">
@@ -62,9 +34,9 @@
 
     <script>
         var player;
-        var videoId = 'hHUbLv4ThOo'; // Fireball ID
+        var videoId = 'hHUbLv4ThOo'; // FIREBALL ID (Spot 1)
 
-        // YouTube API Setup
+        // Load YouTube API
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -72,22 +44,31 @@
 
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                height: '0', width: '0', videoId: videoId,
-                playerVars: { 'autoplay': 1, 'loop': 1, 'playlist': videoId, 'playsinline': 1 },
-                events: { 'onReady': (e) => { e.target.mute(); e.target.playVideo(); } }
+                height: '0', width: '0',
+                videoId: videoId,
+                playerVars: { 
+                    'autoplay': 1, 
+                    'loop': 1, 
+                    'hHUbLv4ThOo': videoId, // FIREBALL ID (Spot 2 - Required for Loop)
+                    'playsinline': 1,
+                    'controls': 0
+                },
+                events: { 
+                    'onReady': (e) => { 
+                        e.target.mute(); 
+                        e.target.playVideo(); 
+                    } 
+                }
             });
         }
 
-        // When button is clicked...
+        // When button is clicked: Unmute, Reset to start, and show the game
         document.getElementById('entry-button').addEventListener('click', function() {
-            // 1. Play Music
             if (player) {
                 player.unMute();
                 player.seekTo(0);
                 player.playVideo();
             }
-            
-            // 2. Hide Start Screen & Show Game
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
         });
